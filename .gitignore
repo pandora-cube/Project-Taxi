@@ -1,14 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/unity,windows,macos,rider,visualstudio,visualstudiocode,dotnetcore,dotenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=unity,windows,macos,rider,visualstudio,visualstudiocode,dotnetcore,dotenv
 
-### dotenv ###
-.env
-
-### DotnetCore ###
-# .NET Core build folders
-bin/
-obj/
-
 # Common node modules locations
 /node_modules
 /wwwroot/node_modules
