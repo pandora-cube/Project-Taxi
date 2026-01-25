@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="gameLogic/gameLogic.csproj" />
+  <Project Path="networkAPI/networkAPI.csproj" />
+</Solution>
