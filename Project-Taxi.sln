@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gameLogic", "Server\gameLogic\gameLogic.csproj", "{C2F7B590-2C14-4CD6-89A0-626B8E4EB918}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "networkAPI", "Server\networkAPI\networkAPI.csproj", "{32E87ED7-EDF3-6EEB-21E2-B8E413747B6C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2F7B590-2C14-4CD6-89A0-626B8E4EB918}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2F7B590-2C14-4CD6-89A0-626B8E4EB918}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2F7B590-2C14-4CD6-89A0-626B8E4EB918}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2F7B590-2C14-4CD6-89A0-626B8E4EB918}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32E87ED7-EDF3-6EEB-21E2-B8E413747B6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32E87ED7-EDF3-6EEB-21E2-B8E413747B6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32E87ED7-EDF3-6EEB-21E2-B8E413747B6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32E87ED7-EDF3-6EEB-21E2-B8E413747B6C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C2F7B590-2C14-4CD6-89A0-626B8E4EB918} = {DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}
+		{32E87ED7-EDF3-6EEB-21E2-B8E413747B6C} = {DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D7073E37-AE84-4896-A52D-268BA1B49B58}
+	EndGlobalSection
+EndGlobal
