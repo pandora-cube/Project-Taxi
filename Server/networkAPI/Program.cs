@@ -1,6 +1,4 @@
 ﻿using Protocol;
 
-var newMsg = new S_Login();
+var newMove = new C_Move();
 
-newMsg.PlayerId = (int)PacketID.PktSLogin;
-newMsg.Success = true;
