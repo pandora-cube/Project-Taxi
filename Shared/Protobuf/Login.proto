@@ -1,0 +1,23 @@
+syntax = "proto3";
+package Protocol.Login;
+
+// 유니티와 .NET 모두에서 사용할 네임스페이스 설정
+option csharp_namespace = "Protocol.Login";
+
+enum DisconnectReason {
+  SUCCESS = 200,
+  DUPLICATION_NAME = 100,
+  CONNECTION_FAIL = 404,
+}
+
+message C_Login {
+  string nickname = 1;
+  string buildVersion = 2;
+  // string AuthToken = 3;
+}
+
+message S_Login {
+  bool success = 1;
+  int32 clientID = 2;
+  enum disconnectReason = 3;
+}
