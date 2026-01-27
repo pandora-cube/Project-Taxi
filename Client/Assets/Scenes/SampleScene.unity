@@ -491,6 +491,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   moveSpeed: 5
+  mouseSensitivity: 200
+  cameraTransform: {fileID: 330585546}
   jumpForce: 7
   isGrounded: 0
   groundCheckDistance: 1
