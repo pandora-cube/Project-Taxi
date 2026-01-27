@@ -1,0 +1,56 @@
+syntax = "proto3";
+package Protocol;
+
+// 유니티와 .NET 모두에서 사용할 네임스페이스 설정
+option csharp_namespace = "Protocol";
+
+enum PacketID {
+  PKT_NONE = 0;
+  PKT_C_LOGIN = 1;
+  PKT_S_LOGIN = 2;
+  PKT_C_MOVE = 3;
+  PKT_S_BROADCAST_MOVE = 4;
+}
+
+message C_Login {
+  string nickname = 1;
+}
+
+message S_Login {
+  bool success = 1;
+  int32 playerId = 2;
+}
+
+message C_Move {
+  
+  float posX = 1;
+  float posY = 2;
+  float posZ = 3;
+
+}
+
+message C_Rot{
+
+  float rotX = 1;
+  float rotY = 2;
+
+}
+
+message S_BroadcastMove {
+  
+  int32 playerId = 1; // 플레이어를 구분하는 client의 ID
+
+  float posX = 2;
+  float posY = 3;
+  float posZ = 4;
+
+}
+
+message S_Rot{
+
+  int32 playerID = 1;
+  
+  float rotX = 2;
+  float rotY = 3;
+
+}
