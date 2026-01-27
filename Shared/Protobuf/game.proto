@@ -22,14 +22,35 @@ message S_Login {
 }
 
 message C_Move {
+  
   float posX = 1;
   float posY = 2;
   float posZ = 3;
+
+}
+
+message C_Rot{
+
+  float rotX = 1;
+  float rotY = 2;
+
 }
 
 message S_BroadcastMove {
-  int32 playerId = 1;
+  
+  int32 playerId = 1; // 플레이어를 구분하는 client의 ID
+
   float posX = 2;
   float posY = 3;
   float posZ = 4;
+
+}
+
+message S_Rot{
+
+  int32 playerID = 1;
+  
+  float rotX = 2;
+  float rotY = 3;
+
 }
