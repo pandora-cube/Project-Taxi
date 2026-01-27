@@ -491,6 +491,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   moveSpeed: 5
+  mouseSensitivity: 200
+  cameraTransform: {fileID: 330585546}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
