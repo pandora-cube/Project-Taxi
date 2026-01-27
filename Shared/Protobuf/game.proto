@@ -10,15 +10,8 @@ enum PacketID {
   PKT_S_LOGIN = 2;
   PKT_C_MOVE = 3;
   PKT_S_BROADCAST_MOVE = 4;
-}
-
-message C_Login {
-  string nickname = 1;
-}
-
-message S_Login {
-  bool success = 1;
-  int32 playerId = 2;
+  PKT_C_ROT = 5;
+  PKT_S_BROADCAST_ROT = 6;
 }
 
 message C_Move {
@@ -46,7 +39,7 @@ message S_BroadcastMove {
 
 }
 
-message S_Rot{
+message S_BroadcastRot{
 
   int32 playerID = 1;
   
