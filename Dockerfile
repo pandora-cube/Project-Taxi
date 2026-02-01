@@ -6,9 +6,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS Builder
 WORKDIR /src
 
 # Restore Dependency : Import csproj first to Caching projects
-COPY ["./ServerCore/ServerCore.csproj", "ServerCore/"]
-COPY ["./GameLogic/GameLogic.csproj", "GameLogic/"]
-COPY ["./Shared/Shared.csproj", "Shared/"]
+COPY ["Server/ServerCore/ServerCore.csproj", "ServerCore/"]
+COPY ["Server/GameLogic/GameLogic.csproj", "GameLogic/"]
+COPY ["Server/Shared/Shared.csproj", "Shared/"]
 
 # Restore NuGet
 RUN dotnet restore "ServerCore/ServerCore.csproj"
