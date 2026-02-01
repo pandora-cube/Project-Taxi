@@ -32,7 +32,7 @@ jobs:
                 context: .
                 file: ./Dockerfile
                 push: true
-                tags: ghcr.io${{ github.repository }}/taxi-server:${{ env.BRANCH_NAME }}
+                tags: ghcr.io/${{ github.repository }}/taxi-server:${{ env.BRANCH_NAME }}
             
             # 4. Connect to Self-Host and run 
             - name: SSH Remote Deploy
