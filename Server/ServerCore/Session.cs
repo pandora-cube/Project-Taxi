@@ -5,9 +5,9 @@ namespace ServerCore;
 
 public class Session
 {
-    private Socket _socket = null;
+    private Socket _socket;
 
-    public void Start(Socket socket)
+    public Session(Socket socket)
     {
         _socket = socket;
         Console.WriteLine($"Client Connected: {_socket.RemoteEndPoint}");

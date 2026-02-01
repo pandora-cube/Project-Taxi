@@ -16,8 +16,7 @@ class Program
         // 접속이 발생했을 때 실행할 콜백 등록
         listener.Init(endPoint, (clientSocket) => {
             // 접속할 때마다 새로운 세션 객체 생성
-            Session session = new Session();
-            session.Start(clientSocket);
+            Session session = new Session(clientSocket);
         });
 
         Console.WriteLine($"Echo Server is running...");
