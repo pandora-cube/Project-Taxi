@@ -2,13 +2,13 @@
 ## Author : Ozeco-Mmem
 
 # Build Stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS Builder
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS builder
 WORKDIR /src
 
 # Restore Dependency : Import csproj first to Caching projects
 COPY ["Server/Shared/Shared.csproj", "Shared/"]
 COPY ["Server/ServerCore/ServerCore.csproj", "ServerCore/"]
-COPY ["Server/GameLogic/GameLogic.csproj", "GameLogic/"]
+# COPY ["Server/GameLogic/GameLogic.csproj", "GameLogic/"]
 
 # Restore NuGet
 RUN dotnet restore "ServerCore/ServerCore.csproj"
@@ -21,11 +21,11 @@ WORKDIR "/src/ServerCore"
 RUN dotnet publish "ServerCore.csproj" -c Debug -o /app/publish /p:UseAppHost=false
 
 # Runtime Stage
-FROM mcr.microsoft.com/dotnet/runtime:10.0 AS Runtime
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
 WORKDIR /app
 
 # Copy build result
-COPY --from=Builder /app/publish .
+COPY --from=builder /app/publish .
 
 # Server Port Open
 EXPOSE 7777
