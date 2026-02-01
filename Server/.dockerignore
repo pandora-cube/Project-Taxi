@@ -6,3 +6,6 @@
 **/bin
 **/obj
 **/Client
+
+# Backend Documents
+./documents
