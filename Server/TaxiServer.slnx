@@ -1,4 +1,5 @@
 <Solution>
-  <Project Path="gameLogic/gameLogic.csproj" />
-  <Project Path="networkAPI/networkAPI.csproj" />
+  <Project Path="GameLogic/GameLogic.csproj" />
+  <Project Path="ServerCore/ServerCore.csproj" />
+  <Project Path="Shared/Shared.csproj" />
 </Solution>
