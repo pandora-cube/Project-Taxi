@@ -43,4 +43,4 @@ jobs:
                 key: ${{ secrets.SERVER_SSH_KEY }}
                 script: |
                     # server deploy shell script
-                    /home/${{ secrets.SERVER_USER }}/deploy.sh ${{ env.BRANCH_NAME }}
+                    /home/${{ secrets.SERVER_USER }}/Taxi/deploy.sh ${{ env.BRANCH_NAME }}
