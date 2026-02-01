@@ -8,7 +8,7 @@ WORKDIR /src
 # Restore Dependency : Import csproj first to Caching projects
 COPY ["Server/Shared/Shared.csproj", "Shared/"]
 COPY ["Server/ServerCore/ServerCore.csproj", "ServerCore/"]
-COPY ["Server/GameLogic/GameLogic.csproj", "GameLogic/"]
+COPY ["Server/GameServer/GameServer.csproj", "GameServer/"]
 
 # Restore NuGet
 RUN dotnet restore "ServerCore/ServerCore.csproj"

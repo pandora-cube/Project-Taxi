@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="GameLogic/GameLogic.csproj" />
+  <Project Path="GameServer/GameServer.csproj" />
   <Project Path="ServerCore/ServerCore.csproj" />
   <Project Path="Shared/Shared.csproj" />
 </Solution>

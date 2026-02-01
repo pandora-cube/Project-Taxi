@@ -3,7 +3,7 @@
 using ServerCore;
 using Protocol;
 
-namespace GameLogic;
+namespace GameServer;
 
 public class Player
 {
@@ -14,7 +14,7 @@ public class Player
     public float posX, posY, posZ;
 }
 
-public class GameServer
+public class GameInstance
 {
     public Player[] players = new Player[4];
 
