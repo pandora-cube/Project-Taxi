@@ -1,4 +1,4 @@
-name: Deploy Game Server
+name: Deploy Game Server to sdk.labb32
 
 on:
     push:
