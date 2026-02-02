@@ -41,6 +41,7 @@ jobs:
                 host: ${{ secrets.SERVER_IP }}
                 username: runner
                 key: ${{ secrets.SERVER_SSH_KEY }}
+                port: ${{ secrets.SERVER_PORT }}
                 # env 항목을 추가하여 토큰과 ID를 전달합니다.
                 envs: GITHUB_TOKEN, GITHUB_ACTOR
               env:
