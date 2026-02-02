@@ -39,9 +39,15 @@ jobs:
               uses: appleboy/ssh-action@v1.0.3
               with:
                 host: ${{ secrets.SERVER_IP }}
-                port: ${{ secrets.SERVER_PORT }}
-                username: ${{ secrets.SERVER_USER }}
+                username: runner
                 key: ${{ secrets.SERVER_SSH_KEY }}
+                # env 항목을 추가하여 토큰과 ID를 전달합니다.
+                envs: GITHUB_TOKEN, GITHUB_ACTOR
+              env:
+                GITHUB_TOKEN: ${{ secrets.MY_READ_TOKEN }}
+                GITHUB_ACTOR: ${{ github.actor }}
                 script: |
-                    # server deploy shell script
-                    /home/${{ secrets.SERVER_USER }}/Taxi/deploy.sh ${{ env.BRANCH_NAME }}
+                  # 서버에 로그인
+                  echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+                  # 이후 배포 스크립트 실행
+                  /home/runner/Taxi/deploy.sh ${{ env.BRANCH_NAME }}
