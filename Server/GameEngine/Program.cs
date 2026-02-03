@@ -1,7 +1,8 @@
 ﻿using System.Net;
+using ServerCore;
 using Protocol;
 
-namespace ServerCore;
+namespace GameEngine;
 
 class Program
 {

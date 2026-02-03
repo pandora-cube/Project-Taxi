@@ -1,8 +1,8 @@
 ﻿// Game Server Info
-
+using ServerCore;
 using Protocol;
 
-namespace GameServer;
+namespace GameEngine;
 
 public class Player
 {
@@ -11,12 +11,7 @@ public class Player
     public float posX, posY, posZ;
 }
 
-public class GameInstance
+public class GameRoom
 {
-    public Player[] players = new Player[4];
-
-    public void RefreshPos(int playerID)
-    {
-
-    }
+    
 }
