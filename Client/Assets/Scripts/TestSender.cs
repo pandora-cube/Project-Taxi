@@ -5,6 +5,7 @@ using Protocol;
 
 public class TestSender : MonoBehaviour
 {
+    /*
     private C_Login loginPacket;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -36,4 +37,5 @@ public class TestSender : MonoBehaviour
             Debug.Log(e.Message);
         }
     }
+    */
 }
