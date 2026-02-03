@@ -27,8 +27,9 @@ public class Session
                 if (receiveLen <= 0) break;
 
                 // 데이터 처리
-                // 받은 버퍼를 패킷으로 파싱
-                // 해당하는 GameRoom에 데이터 전달
+                // TODO: 수신된 바이트 데이터를 역직렬화
+                // 1. PacketID 파싱 후 해당 값에 따라 Packet 구분 및 역직렬화
+                // 2. Session 내 핸들러 메서드 호출
             }
         }
         catch (Exception e)

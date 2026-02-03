@@ -9,13 +9,13 @@ public class Player
     public int playerID;
     public string? nickname;
     public float posX, posY, posZ;
+    public float velX, velY, velZ;
+    public float rotY;
     
     public Session? session;
 }
 
 public class GameRoom
 {
-    Player p = new();
-
-    p.session = new Session(null!);
+    
 }
