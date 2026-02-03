@@ -1,0 +1,34 @@
+## Dockerfile for Taxi Server Container Build
+## Author : Ozeco-Mmem
+
+# Build Stage
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS builder
+WORKDIR /src
+
+# Restore Dependency : Import csproj first to Caching projects
+COPY ["Server/Shared/Shared.csproj", "Shared/"]
+COPY ["Server/ServerCore/ServerCore.csproj", "ServerCore/"]
+COPY ["Server/GameServer/GameServer.csproj", "GameServer/"]
+
+# Restore NuGet
+RUN dotnet restore "ServerCore/ServerCore.csproj"
+
+# get SourceCode
+COPY ./Server .
+
+# build
+WORKDIR "/src/ServerCore"
+RUN dotnet publish "ServerCore.csproj" -c Debug -o /app/publish /p:UseAppHost=false
+
+# Runtime Stage
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
+WORKDIR /app
+
+# Copy build result
+COPY --from=builder /app/publish .
+
+# Server Port Open
+EXPOSE 7777
+
+#Entrypoint
+ENTRYPOINT ["dotnet", "ServerCore.dll"]
