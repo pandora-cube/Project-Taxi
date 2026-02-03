@@ -8,11 +8,12 @@ using Util;
 
 public class NetworkManager : Singleton<NetworkManager>
 {
+    [SerializeField] ServerConfig _serverConfig;
     Socket _socket;
     private void Awake()
     {
-        IPAddress ipAddr = IPAddress.Parse("127.0.0.1");
-        IPEndPoint endPoint = new IPEndPoint(ipAddr, 23777);
+        IPAddress ipAddr = IPAddress.Parse(_serverConfig.ServerIp);
+        IPEndPoint endPoint = new IPEndPoint(ipAddr, _serverConfig.Port);
 
 // 2. 소켓 생성 (TCP, IPv4 기준)
         _socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
