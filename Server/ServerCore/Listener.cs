@@ -8,6 +8,12 @@ public class Listener
     private Socket _listenSocket = null!;
     private Action<Socket> _onAcceptHandler = null!;
 
+    /// <summary>
+    /// 엔드포인트를 통해 소켓 개방
+    /// </summary>
+    /// <param name="endPoint">접속을 대기할 엔드포인트</param>
+    /// <param name="onAcceptHandler">접속이 발생했을 때 실행할 콜백</param>
+    /// <remarks>접속 시도 시 Init을 통해 클라이언트 엔드포인트와의 소켓을 개방, 세션 생성</remarks>
     public void Init(IPEndPoint endPoint, Action<Socket> onAcceptHandler)
     {
         _listenSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);

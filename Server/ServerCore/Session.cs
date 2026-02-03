@@ -27,6 +27,8 @@ public class Session
                 if (receiveLen <= 0) break;
 
                 // 데이터 처리
+                // 받은 버퍼를 패킷으로 파싱
+                // 해당하는 GameRoom에 데이터 전달
             }
         }
         catch (Exception e)
