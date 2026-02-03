@@ -1,4 +1,6 @@
 using System.Net.Sockets;
+using System.Security.Cryptography;
+using Google.Protobuf;
 using Protocol;
 
 namespace ServerCore;
@@ -6,6 +8,37 @@ namespace ServerCore;
 public class Session
 {
     private Socket _socket;
+
+    Dictionary<PacketID, Action<IMessage>> packetHandlers = new Dictionary<PacketID, Action<IMessage>>();
+
+    public void BindAction(PacketID packetID, Action<IMessage> action)
+    {
+        
+
+        packetHandlers.Add(packetID, action);
+    }
+
+    void HandlePacket( byte[] buffer)
+    {
+        ushort size = BitConverter.ToUInt16(buffer, 0);
+        PacketID packetID = (PacketID)BitConverter.ToUInt16(buffer, 2);
+        
+        string className = packetID.ToString().Replace("Pkt", "").Insert(1, "_");
+        Type type = Type.GetType($"{className}");
+        IMessage packet = ((MessageParser)type.GetProperty("Parser").GetValue(null)).ParseFrom(
+            buffer, 4, size - 2
+        );
+
+        if (packetHandlers.TryGetValue(packetID, out Action<IMessage>? action))
+        {
+            action.Invoke(packet);
+        }
+        else
+        {
+            Console.WriteLine($"No handler for packet ID: {packetID}");
+        }
+    }
+
 
     public Session(Socket socket)
     {
@@ -30,6 +63,13 @@ public class Session
                 // TODO: 수신된 바이트 데이터를 역직렬화
                 // 1. PacketID 파싱 후 해당 값에 따라 Packet 구분 및 역직렬화
                 // 2. Session 내 핸들러 메서드 호출
+
+                HandlePacket(buffer);
+
+        
+                //=========
+
+
             }
         }
         catch (Exception e)
@@ -41,4 +81,6 @@ public class Session
             _socket.Close();
         }
     }
+
+
 }
