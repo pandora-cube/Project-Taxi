@@ -43,15 +43,15 @@ public class NewMonoBehaviourScript : MonoBehaviour
 
     private void SendMovePacket()
     {
-        //C_Move packet = new C_Move();
-        //packet.PosX = transform.position.x;
-        //packet.PosY = transform.position.y;
-        //packet.PosZ = transform.position.z;
+        C_Move packet = new C_Move();
+        packet.PosX = transform.position.x;
+        packet.PosY = transform.position.y;
+        packet.PosZ = transform.position.z;
         
         // FPS 게임은 어디를 보는지(Y축 회전)가 중요함
         //packet.RotY = transform.eulerAngles.y; 
 
         // NetworkManager를 통해 전송 (MsgId.C_MOVE는 가정)
-        //NetworkManager.Instance.Send(packet, (int)MsgId.C_MOVE);
+        NetworkManager.Instance.Send(packet);
     }
 }

@@ -50,10 +50,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2696400592374019851, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
       propertyPath: m_Name
-      value: Remote Variant
+      value: Remote
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2696400592374019851, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3041529134243358516}
   m_SourcePrefab: {fileID: 100100000, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
+--- !u!1 &2130103675576683886 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2696400592374019851, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
+  m_PrefabInstance: {fileID: 4099449993769499237}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-3041529134243358516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130103675576683886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a5596e5d96fee6439c9e9e62060e676, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RemotePlayerMover
+  lerpSpeed: 10
