@@ -18,11 +18,24 @@ namespace Field
             Destroy(gameObject);
         }
 
+        void DestroyItem()
+        {
+            Debug.Log("Item Destroyed");
+            Destroy(gameObject);
+        }
+        
+        void InspectItem()
+        {
+            Debug.Log("Item Information");
+        }
+
         public List<InteractOption> GetOptions()
         {
             return new List<InteractOption>()
             {
-                new InteractOption { ActionName = "줍기", InteractAction = PickUpItem }
+                new InteractOption { ActionName = "줍기", InteractAction = PickUpItem },
+                new InteractOption { ActionName = "파괴하기", InteractAction = DestroyItem },
+                new InteractOption { ActionName = "정보", InteractAction = InspectItem }
             };
         }
     }
