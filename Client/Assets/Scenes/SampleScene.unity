@@ -251,6 +251,19 @@ MonoBehaviour:
   interactLayer:
     serializedVersion: 2
     m_Bits: 8
+  character: {fileID: 376361655}
+--- !u!114 &376361655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376361636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e831335038bc76b4881961961d699aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Character
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -882,6 +895,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 964693490901431378, guid: b05c4595447d3084f84bb868f3cb6f91, type: 3}
       insertIndex: -1
       addedObject: {fileID: 376361649}
+    - targetCorrespondingSourceObject: {fileID: 964693490901431378, guid: b05c4595447d3084f84bb868f3cb6f91, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 376361655}
   m_SourcePrefab: {fileID: 100100000, guid: b05c4595447d3084f84bb868f3cb6f91, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

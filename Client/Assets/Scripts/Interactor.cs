@@ -6,6 +6,7 @@ using UnityEngine;
 public class Interactor : MonoBehaviour
 {
     [SerializeField] private LayerMask interactLayer;
+    [SerializeField] private Character character;
     
     private Camera _camera;
 
@@ -34,7 +35,7 @@ public class Interactor : MonoBehaviour
                 _lastHitObject = hit.collider.gameObject;
                 if (hit.collider.TryGetComponent<IInteractable>(out IInteractable interactable))
                 {
-                    _options = interactable.GetOptions();
+                    _options = interactable.GetOptions(character);
                     string text = "";
                     foreach (var option in _options) text += option.ActionName + ", ";
                     Debug.Log(text);
@@ -70,7 +71,7 @@ public class Interactor : MonoBehaviour
             {
                 _currentIndex = Math.Clamp(_currentIndex, 0, _options.Count - 1);
                 Debug.Log(_options[_currentIndex].ActionName + " 실행");
-                _options[_currentIndex].InteractAction?.Invoke();
+                _options[_currentIndex].InteractAction?.Invoke(character);
             }
         }
         
