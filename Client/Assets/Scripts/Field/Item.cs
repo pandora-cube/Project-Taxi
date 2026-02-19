@@ -1,49 +1,70 @@
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Field
 {
-    public class Item : MonoBehaviour, IInteractable
+    [CreateAssetMenu(fileName = "Item", menuName = "Scriptable Objects/Item")]
+    public class Item : ScriptableObject
     {
-        private ItemSpawner _itemSpawner;
-
-        public void Init(ItemSpawner spawner)
-        {
-            _itemSpawner = spawner;
-        }
+        [SerializeField] private string itemName;
+        public string ItemName => itemName;
+        
+        [SerializeField] private ItemEffect  itemEffect;
 
         /// <summary>
-        /// Character의 인벤토리에 아이템 추가
+        /// 해당 아이템 사용
         /// </summary>
-        void PickUpItem(Character character)
+        /// <param name="user">사용자</param>
+        /// <param name="target">현재 바라보는 대상</param>
+        /// <returns>사용 여부 반환</returns>
+        public bool TryUse(Character user, GameObject target)
         {
-            // TODO : LocalPlayer.AddItem으로 플레이어 아이템 획득
-            Debug.Log($"{character.name} Item Picked");
-
-            // TODO : 서버에 오브젝트 삭제 동기화
-            _itemSpawner.ReleaseObject(this);
-        }
-
-        void DestroyItem(Character character)
-        {
-            Debug.Log($"{character.name} Item Destroyed");
-            _itemSpawner.ReleaseObject(this);
-        }
-
-        void InspectItem(Character character)
-        {
-            Debug.Log($"{character.name} Item Information");
-        }
-
-        public List<InteractOption> GetOptions(Character character)
-        {
-            return new List<InteractOption>()
+            if (!itemEffect) return false;
+            
+            if (target && itemEffect.CanUseOnTarget && itemEffect.CanUseOn(target))
             {
-                new InteractOption { ActionName = "줍기", InteractAction = PickUpItem },
-                new InteractOption { ActionName = "파괴하기", InteractAction = DestroyItem },
-                new InteractOption { ActionName = "정보", InteractAction = InspectItem }
-            };
-        }
-    }
-}
+                itemEffect.Execute(user, target);
+                user.inventory.RemoveItem(this);
+                return true;
+            }
 
+            if (itemEffect.CanUseOnSelf)
+            {
+                itemEffect.Execute(user, null);
+                user.inventory.RemoveItem(this);
+                return true;
+            }
+
+            return false;
+        }
+        
+
+    }
+
+
+    public abstract class ItemEffect : ScriptableObject
+    {
+        // TODO : 사용 방법 별로 상속받은 클래스 만들기 및 필요 시 Item과 병합
+        [SerializeField] private string actionName;
+        public string ActionName => actionName;
+        [SerializeField] private bool canUseOnTarget;
+        public bool CanUseOnTarget => canUseOnTarget;
+        [SerializeField] private bool canUseOnSelf;
+        public bool CanUseOnSelf => canUseOnSelf;
+
+        /// <summary>
+        /// 이 효과가 target에게 사용가능한지 확인
+        /// </summary>
+        /// <param name="target">현재 상호작용하려는 오브젝트</param>
+        /// <returns>효과 사용 가능 여부</returns>
+        public abstract bool CanUseOn(GameObject target);
+        /// <summary>
+        /// user가 이 효과를 target에게 사용
+        /// </summary>
+        /// <param name="user">사용자</param>
+        /// <param name="target">상호작용하는 오브젝트</param>
+        public abstract void Execute(Character user,GameObject target);
+    } 
+}

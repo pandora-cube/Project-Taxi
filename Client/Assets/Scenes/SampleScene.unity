@@ -264,6 +264,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e831335038bc76b4881961961d699aed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
+  inventory: {fileID: 376361656}
+--- !u!114 &376361656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376361636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06e4c372138cca2459eefb93c9a401bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Field.Inventory
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,7 +585,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c35bbc0c2302659439acba47137dbb0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkManager
-  _serverConfig: {fileID: 11400000, guid: fd1ed65850061cd41b228e8165c68367, type: 2}
+  serverConfig: {fileID: 0}
 --- !u!4 &1084629465
 Transform:
   m_ObjectHideFlags: 0
@@ -618,7 +631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0d6adc442e9ac54d828e7eae02737fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Field.ItemSpawner
-  itemPrefab: {fileID: 480529123905891175, guid: 4450645d38609c24fb9e769a93608868, type: 3}
+  itemInstancePrefab: {fileID: 480529123905891175, guid: 4450645d38609c24fb9e769a93608868, type: 3}
   boxCollider: {fileID: 1264351088}
   layerMask:
     serializedVersion: 2
@@ -958,6 +971,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 964693490901431378, guid: b05c4595447d3084f84bb868f3cb6f91, type: 3}
       insertIndex: -1
       addedObject: {fileID: 376361655}
+    - targetCorrespondingSourceObject: {fileID: 964693490901431378, guid: b05c4595447d3084f84bb868f3cb6f91, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 376361656}
   m_SourcePrefab: {fileID: 100100000, guid: b05c4595447d3084f84bb868f3cb6f91, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

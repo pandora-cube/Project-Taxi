@@ -7,21 +7,21 @@ namespace Field
 {
     public class ItemSpawner : MonoBehaviour
     {
-        public Item itemPrefab;
+        public ItemInstance itemInstancePrefab;
         [SerializeField] private BoxCollider boxCollider;
         [SerializeField] private LayerMask layerMask;
         
         [SerializeField] private int maxItems;
         [SerializeField] private float spawnInterval;
-
+        [SerializeField] private Item itemData;
         
         
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            _itemPool = new ObjectPool<Item>(CreatePoolObject,ActivatePoolObject,DeactivatePoolObject,DestroyPoolObject,defaultCapacity: maxItems,maxSize: maxItems);
+            _itemPool = new ObjectPool<ItemInstance>(CreatePoolObject,ActivatePoolObject,DeactivatePoolObject,DestroyPoolObject,defaultCapacity: maxItems,maxSize: maxItems);
             
-            List<Item> pool = new List<Item>();
+            List<ItemInstance> pool = new List<ItemInstance>();
             for (int i = 0; i < maxItems; i++)
             {
                 var obj = _itemPool.Get();
@@ -63,21 +63,24 @@ namespace Field
 
         #region ObjectPool
 
-        IObjectPool<Item> _itemPool;
+        IObjectPool<ItemInstance> _itemPool;
         
-        private Item CreatePoolObject() => Instantiate(itemPrefab);
-        private void ActivatePoolObject(Item obj)
+        private ItemInstance CreatePoolObject() => Instantiate(itemInstancePrefab);
+        private void ActivatePoolObject(ItemInstance obj)
         {
             obj.gameObject.SetActive(true);
-            obj.Init(this);
+            obj.Init(this,itemData);
         }
 
-        private void DeactivatePoolObject(Item obj) => obj.gameObject.SetActive(false);
-        private void DestroyPoolObject(Item obj) => Destroy(obj.gameObject);
+        private void DeactivatePoolObject(ItemInstance obj) => obj.gameObject.SetActive(false);
+        private void DestroyPoolObject(ItemInstance obj) => Destroy(obj.gameObject);
 
-        public Item GetObject()
+        /// <summary>
+        /// 아이템 오브젝트 스폰 함수
+        /// </summary>
+        /// <returns></returns>
+        public ItemInstance GetObject()
         {
-            
             if (_itemPool.CountInactive == 0)
             {
                 return null;
@@ -88,7 +91,11 @@ namespace Field
             }
         }
         
-        public void ReleaseObject(Item obj)
+        /// <summary>
+        /// 아이템 오브젝트 반환 함수
+        /// </summary>
+        /// <param name="obj"></param>
+        public void ReleaseObject(ItemInstance obj)
         {
             if (!obj) return;
             _itemPool.Release(obj);

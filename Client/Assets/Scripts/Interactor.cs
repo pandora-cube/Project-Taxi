@@ -12,7 +12,7 @@ public class Interactor : MonoBehaviour
 
     private GameObject _lastHitObject;
 
-    private List<InteractOption> _options = new List<InteractOption>();
+    private InteractOption _option = null;
 
     private int _currentIndex = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -35,45 +35,37 @@ public class Interactor : MonoBehaviour
                 _lastHitObject = hit.collider.gameObject;
                 if (hit.collider.TryGetComponent<IInteractable>(out IInteractable interactable))
                 {
-                    _options = interactable.GetOptions(character);
-                    string text = "";
-                    foreach (var option in _options) text += option.ActionName + ", ";
+                    _option = interactable.GetOption(character);
+                    string text = _option.ActionName + ", ";
                     Debug.Log(text);
                 }
                 else
                 {
-                    _options.Clear();
+                    _option = null;
                 }
             }
         }
         else
         {
             _lastHitObject = null;
-            _options.Clear();
+            _option = null;
             _currentIndex = 0;
         }
 
-
-        if (_options.Count > 0)
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            // 상호작용한 옵션 중 선택하기
-            float wheelValue = Input.GetAxis("Mouse ScrollWheel");
-            if (wheelValue != 0)
+            if (_option != null)
             {
-                int delta = 0;
-                if (wheelValue > 0) delta = -1;
-                else if (wheelValue < 0) delta = 1;
-                _currentIndex = Math.Clamp(_currentIndex + delta, 0, _options.Count - 1);
-                Debug.Log(_options[_currentIndex].ActionName);
-            }
-            // 선택한 옵션 실행하기
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                _currentIndex = Math.Clamp(_currentIndex, 0, _options.Count - 1);
-                Debug.Log(_options[_currentIndex].ActionName + " 실행");
-                _options[_currentIndex].InteractAction?.Invoke(character);
+                // 바라보는 대상 상호작용
+                Debug.Log(_option.ActionName + " 실행");
+                _option.InteractAction?.Invoke(character);
             }
         }
+
         
+        if (Input.GetMouseButtonDown(0))
+        {
+            character.UseHeldItem(_lastHitObject);
+        }
     }
 }

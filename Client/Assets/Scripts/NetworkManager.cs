@@ -8,12 +8,13 @@ using Util;
 
 public class NetworkManager : Singleton<NetworkManager>
 {
-    [SerializeField] ServerConfig _serverConfig;
+    [SerializeField] ServerConfig serverConfig;
     Socket _socket;
     private void Awake()
     {
-        IPAddress ipAddr = IPAddress.Parse(_serverConfig.ServerIp);
-        IPEndPoint endPoint = new IPEndPoint(ipAddr, _serverConfig.Port);
+        if (!serverConfig) return;
+        IPAddress ipAddr = IPAddress.Parse(serverConfig.ServerIp);
+        IPEndPoint endPoint = new IPEndPoint(ipAddr, serverConfig.Port);
 
 // 2. 소켓 생성 (TCP, IPv4 기준)
         _socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
