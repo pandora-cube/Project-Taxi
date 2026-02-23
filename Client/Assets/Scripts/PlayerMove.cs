@@ -75,7 +75,7 @@ public class PlayerMove : MonoBehaviour
     void Jump()
     {
         // Y축 속도를 초기화하고 점프 힘 가하기 (일관된 점프 높이 유지)
-        rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 
