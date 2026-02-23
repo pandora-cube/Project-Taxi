@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerMove : MonoBehaviour
 {
     [Header("Movement Settings")]
@@ -10,7 +11,11 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float jumpHeight = 1.2f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float jumpGravityMultiplier = 2.0f; // 점프 후 떨어질 때 더 빠르게
-
+    
+    
+    [Header("Survival Settings")]
+    [SerializeField] private float sprintHungerThreshold = 20f; //달리기가 불가능해지는 허기 기준치
+    
     [Header("Look Settings")]
     [SerializeField] private Transform playerCamera; // 자식으로 있는 메인 카메라
     [SerializeField] private float mouseSensitivity = 15.0f; // 마우스 감도
@@ -19,19 +24,22 @@ public class PlayerMove : MonoBehaviour
     // 내부 변수
     private CharacterController _controller;
     private PlayerControls _inputActions;
+    private PlayerStats _playerStats;
+    
     private Vector2 _moveInput;
     private Vector2 _lookInput;
     private Vector3 _velocity; // 중력/점프 처리를 위한 수직 속도
     private float _xRotation = 0f; // 카메라 상하 회전값 누적
     private bool _isSprinting;
+    private bool _canSprint = true;
 
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
-
-        // Input System 초기화
         _inputActions = new PlayerControls();
-
+        _playerStats = GetComponent<PlayerStats>();
+        
+        
         // 입력 이벤트 연결 (람다식 활용)
         _inputActions.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
         _inputActions.Player.Move.canceled += ctx => _moveInput = Vector2.zero;
@@ -49,14 +57,37 @@ public class PlayerMove : MonoBehaviour
         Cursor.visible = false;
     }
 
-    private void OnEnable() => _inputActions.Enable();
-    private void OnDisable() => _inputActions.Disable();
+    private void OnEnable()
+    {
+        _inputActions.Enable();
+        _playerStats.OnHungerChanged += CheckSprintAvailability;
+    }
+
+    private void OnDisable()
+    {
+        _inputActions.Disable();
+        _playerStats.OnHungerChanged -= CheckSprintAvailability;
+    }
+    
 
     private void Update()
     {
         HandleLook();
         HandleMovement();
         ApplyGravity();
+    }
+    
+    //허기가 바뀔 때마다 호출되어 달리기 가능 여부를 갱신하는 함수
+    private void CheckSprintAvailability(float currentHunger, float maxHunger)
+    {
+        // 현재 허기가 기준치 이상일 때만 달리기 가능
+        _canSprint = currentHunger >= sprintHungerThreshold;
+
+        // 만약 뛰고 있었는데 허기가 떨어져서 못 뛰게 되면 즉시 걷기로 전환
+        if (!_canSprint && _isSprinting)
+        {
+            _isSprinting = false;
+        }
     }
 
     // 1. 시점 처리 (마우스)

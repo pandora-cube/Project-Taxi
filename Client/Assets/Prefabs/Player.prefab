@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7810148037601122692, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
+      propertyPath: isLocalPlayer
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 867079220996205291, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.52444
@@ -50,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2696400592374019851, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
       propertyPath: m_Name
-      value: Player Variant
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -59,6 +63,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2696400592374019851, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4977873689819657092}
+    - targetCorrespondingSourceObject: {fileID: 2696400592374019851, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3710479272161146534}
   m_SourcePrefab: {fileID: 100100000, guid: 4bdb12033f1c22d409e44c70b3082e93, type: 3}
 --- !u!1 &964693490901431378 stripped
 GameObject:
@@ -85,3 +92,18 @@ MonoBehaviour:
   playerCamera: {fileID: 0}
   mouseSensitivity: 15
   lookXLimit: 85
+--- !u!114 &3710479272161146534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 964693490901431378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f15338ab361901e489924b40da60b9c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
+  sendInterval: 0.05
+  moveThreshold: 0.01
+  rotThreshold: 1
