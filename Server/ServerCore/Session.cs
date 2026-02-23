@@ -9,29 +9,66 @@ public class Session
 {
     private Socket _socket;
 
-    Dictionary<PacketID, Action<IMessage>> packetHandlers = new Dictionary<PacketID, Action<IMessage>>();
+    Dictionary<PacketID, Action<Session, IMessage>> packetHandlers = new Dictionary<PacketID, Action<Session, IMessage>>();
 
-    public void BindAction(PacketID packetID, Action<IMessage> action)
+    public Session(Socket socket)
     {
-        
+        _socket = socket;
+        Console.WriteLine($"Client Connected: {_socket.RemoteEndPoint}");
+    }
 
+    // 클라이언트로부터 데이터 수신 시작
+    public void Start()
+    {
+        StartReceive();
+    }
+
+    /// <summary>
+    /// 특정 패킷 ID에 대한 핸들러 등록
+    /// </summary>
+    public void BindAction(PacketID packetID, Action<Session, IMessage> action)
+    {
         packetHandlers.Add(packetID, action);
     }
 
-    void HandlePacket( byte[] buffer)
+    void HandlePacket(byte[] buffer)
     {
         ushort size = BitConverter.ToUInt16(buffer, 0);
         PacketID packetID = (PacketID)BitConverter.ToUInt16(buffer, 2);
-        
-        string className = packetID.ToString().Replace("Pkt", "").Insert(1, "_");
-        Type type = Type.GetType($"{className}");
-        IMessage packet = ((MessageParser)type.GetProperty("Parser").GetValue(null)).ParseFrom(
-            buffer, 4, size - 2
-        );
 
-        if (packetHandlers.TryGetValue(packetID, out Action<IMessage>? action))
+        // PacketID (PktCMove) -> ClassName (C_Move)
+        string className = packetID.ToString().Replace("Pkt", "").Insert(1, "_");
+
+        // Reflection을 이용해 Protocol 네임스페이스에서 해당 클래스 타입 찾기
+        Type? type = Type.GetType($"Protocol.{className}, Shared");
+
+        if (type == null)
         {
-            action.Invoke(packet);
+            Console.WriteLine($"Failed to find type: Protocol.{className}");
+            return;
+        }
+
+        // Protocol.{className} 클래스의 static Parser 속성에서 MessageParser 인스턴스 가져오기
+        var parserProperty = type.GetProperty("Parser");
+        if (parserProperty == null)
+        {
+            Console.WriteLine($"Failed to find Parser for: {className}");
+            return;
+        }
+
+        // MessageParser를 이용해 패킷 역직렬화
+        if (parserProperty.GetValue(null) is not MessageParser parser)
+        {
+            Console.WriteLine($"Failed to get MessageParser for: {className}");
+            return;
+        }
+
+        IMessage packet = parser.ParseFrom(buffer, 4, size - 2);
+
+        // 패킷 ID에 해당하는 핸들러가 등록되어 있으면 실행
+        if (packetHandlers.TryGetValue(packetID, out Action<Session, IMessage>? action))
+        {
+            action.Invoke(this, packet);
         }
         else
         {
@@ -40,13 +77,6 @@ public class Session
     }
 
 
-    public Session(Socket socket)
-    {
-        _socket = socket;
-        Console.WriteLine($"Client Connected: {_socket.RemoteEndPoint}");
-
-        StartReceive();
-    }
 
     private async void StartReceive()
     {
@@ -66,7 +96,7 @@ public class Session
 
                 HandlePacket(buffer);
 
-        
+
                 //=========
 
 

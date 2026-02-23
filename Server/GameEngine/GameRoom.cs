@@ -1,46 +1,39 @@
 ﻿// Game Server Info
 using ServerCore;
 using Protocol;
+using Google.Protobuf;
 
 namespace GameEngine;
-
-public class Player
-{
-    public int playerID;
-    public string? nickname;
-    public float posX, posY, posZ;
-    public float velX, velY, velZ;
-    public float rotY;
-    
-    public Session? session;
-}
 
 public class GameRoom
 {
     static int nextPlayerID = 1;
     Dictionary<int, Player> players = new Dictionary<int, Player>();
 
+    /// <summary>
+    /// 새 플레이어를 방에 추가하고, 해당 세션에 패킷 핸들러 등록
+    /// </summary>
+    /// <param name="session"></param>
     public void AddPlayer(Session session)
     {
-        Player newPlayer = new Player();
-        newPlayer.playerID = nextPlayerID++;
-        newPlayer.session = session;
+        Player newPlayer = new Player(nextPlayerID++, session);
+        session.BindAction(PacketID.PktCMove, OnMovePacketReceived);
 
         players.Add(newPlayer.playerID, newPlayer);
+    }
 
-        // 새 플레이어 정보를 본인에게 전송
-        S_EnterGame enterPacket = new S_EnterGame();
-        enterPacket.playerID = newPlayer.playerID;
-        session.Send(enterPacket);
+    /// <summary>
+    /// 플레이어로부터 이동 패킷이 수신되었을 때 실행되는 핸들러
+    /// </summary>
+    void OnMovePacketReceived(Session session, IMessage packet)
+    {
+        // only handle C_Move packets
+        if (packet is not C_Move movePacket)
+        {
+            Console.WriteLine("Received non-move packet");
+            return;
+        }
 
-        // 다른 플레이어들에게 새 플레이어 정보 전송
-        S_Spawn spawnPacket = new S_Spawn();
-        spawnPacket.playerID = newPlayer.playerID;
-        spawnPacket.posX = newPlayer.posX;
-        spawnPacket.posY = newPlayer.posY;
-        spawnPacket.posZ = newPlayer.posZ;
-        spawnPacket.rotY = newPlayer.rotY;
-
-        Broadcast(spawnPacket, exceptPlayerID: newPlayer.playerID);
+        Console.WriteLine($"Received move packet: {movePacket.PosX}, {movePacket.PosY}, {movePacket.PosZ}");
     }
 }
