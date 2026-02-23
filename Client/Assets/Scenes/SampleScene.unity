@@ -265,6 +265,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Character
   inventory: {fileID: 376361656}
+  hp: 0
 --- !u!114 &376361656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -638,6 +639,7 @@ MonoBehaviour:
     m_Bits: 64
   maxItems: 5
   spawnInterval: 10
+  itemData: {fileID: 11400000, guid: 31ad13c21682cd646a058dec78f3c822, type: 2}
 --- !u!65 &1264351088
 BoxCollider:
   m_ObjectHideFlags: 0
