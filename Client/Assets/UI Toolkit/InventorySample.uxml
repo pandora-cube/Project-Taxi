@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="SlotContainer" style="flex-grow: 0; background-color: rgba(105, 221, 136, 0.75); width: 60%; height: 15%; flex-basis: initial; flex-shrink: 0; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; left: 20%; top: auto; bottom: 0%; right: 20%; justify-content: flex-start; align-content: flex-start; position: absolute; flex-direction: row; flex-wrap: wrap; align-items: flex-start;"/>
+</ui:UXML>

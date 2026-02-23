@@ -30,18 +30,21 @@ namespace Field
         /// <returns>추가 성공 여부</returns>
         public bool AddItem(Item item, int amount =1)
         {
-            foreach (var slot in Slots)
+            for (var i = 0; i < Slots.Length; i++)
             {
-                if (slot == null || slot.Item != item) continue;
-                slot.Amount++;
+                // 기존 슬롯에 추가하는 경우
+                if (Slots[i] == null || Slots[i].Item != item) continue;
+                Slots[i].Amount += amount;
+                OnSlotChanged?.Invoke(i); // UI에 i번째 슬롯 갱신 신호 보냄
                 return true;
-
             }
 
             for (var i = 0; i < Slots.Length; i++)
             {
-                if (Slots[i] != null && Slots[i].Item != null) continue;
+                // 빈 슬롯에 새로 추가하는 경우
+                if (Slots[i] != null && Slots[i].Item) continue;
                 Slots[i] = new InventorySlot(item, amount);
+                OnSlotChanged?.Invoke(i); // UI에 i번째 슬롯 갱신 신호 보냄
                 return true;
             }
 
@@ -55,11 +58,14 @@ namespace Field
         /// <param name="amount">제거할 개수</param>
         public void RemoveItem(Item item, int amount = 1)
         {
-            var slot = Array.Find(Slots, x => x.Item == item);
-            if (slot != null)
+            for (var i = 0; i < Slots.Length; i++)
             {
-                slot.Amount -= amount;
-                if (slot.Amount <= 0) slot.Item = null;
+                if (Slots[i]?.Item != item) continue;
+                Slots[i].Amount -= amount;
+                if (Slots[i].Amount <= 0) Slots[i].Item = null;
+            
+                OnSlotChanged?.Invoke(i); // UI에 i번째 슬롯 갱신 신호 보냄
+                break;
             }
         }
     }
