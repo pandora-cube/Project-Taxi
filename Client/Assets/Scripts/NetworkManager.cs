@@ -8,12 +8,13 @@ using Util;
 
 public class NetworkManager : Singleton<NetworkManager>
 {
-    [SerializeField] ServerConfig _serverConfig;
+    [SerializeField] ServerConfig serverConfig;
     Socket _socket;
     private void Awake()
     {
-        IPAddress ipAddr = IPAddress.Parse(_serverConfig.ServerIp);
-        IPEndPoint endPoint = new IPEndPoint(ipAddr, _serverConfig.Port);
+        if (!serverConfig) return;
+        IPAddress ipAddr = IPAddress.Parse(serverConfig.ServerIp);
+        IPEndPoint endPoint = new IPEndPoint(ipAddr, serverConfig.Port);
 
 // 2. 소켓 생성 (TCP, IPv4 기준)
         _socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -50,7 +51,7 @@ public class NetworkManager : Singleton<NetworkManager>
         Array.Copy(body, 0, finalBuffer, 4, body.Length);
 
         // 4. 전송 (비동기 권장)
-        _socket.Send(finalBuffer);
+        //_socket.Send(finalBuffer);
     
         // 5. "기다리지 않음" -> 서버가 답장을 주면 OnReceive 등 별도 함수에서 처리됨
     }

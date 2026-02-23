@@ -1,0 +1,11 @@
+# Git Configure
+**/.git
+**/.gitignore
+
+# Project Cache
+**/bin
+**/obj
+**/Client
+
+# Backend Documents
+./documents
