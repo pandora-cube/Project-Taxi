@@ -7,10 +7,36 @@ namespace ServerCore;
 
 public class Session
 {
+    #region Static Reflection Caching
+    // 리플렉션 캐싱을 위한 딕셔너리
+    static readonly Dictionary<PacketID, MessageParser> _parsers = new Dictionary<PacketID, MessageParser>();
+
+    static Session()
+    {
+        // 정적 생성자에서 모든 PacketID에 대해 Parser를 미리 캐싱
+        foreach (PacketID packetID in Enum.GetValues<PacketID>())
+        {
+            // PktCMove -> C_Move
+            string className = packetID.ToString().Replace("Pkt", "");
+            if (className.Length > 1)
+                className = className.Insert(1, "_");
+
+            Type? type = Type.GetType($"Protocol.{className}, Shared");
+            if (type == null) continue;
+
+            var parserProperty = type.GetProperty("Parser");
+            if (parserProperty?.GetValue(null) is MessageParser parser)
+            {
+                _parsers[packetID] = parser;
+            }
+        }
+    }
+    #endregion
+
     private Socket _socket;
     public int PlayerID { get; set; }
 
-    Dictionary<PacketID, Action<Session, IMessage>> packetHandlers = new Dictionary<PacketID, Action<Session, IMessage>>();
+    readonly Dictionary<PacketID, Action<Session, IMessage>> packetHandlers = [];
 
     public Session(Socket socket)
     {
@@ -40,34 +66,14 @@ public class Session
         ushort size = BitConverter.ToUInt16(buffer, 0);
         PacketID packetID = (PacketID)BitConverter.ToUInt16(buffer, 2);
 
-        // PacketID (PktCMove) -> ClassName (C_Move)
-        string className = packetID.ToString().Replace("Pkt", "").Insert(1, "_");
-
-        // Reflection을 이용해 Protocol 네임스페이스에서 해당 클래스 타입 찾기
-        Type? type = Type.GetType($"Protocol.{className}, Shared");
-
-        if (type == null)
+        // 캐싱된 Parser가 있는지 확인
+        if (!_parsers.TryGetValue(packetID, out MessageParser? parser))
         {
-            Console.WriteLine($"Failed to find type: Protocol.{className}");
+            Console.WriteLine($"No parser found for: {packetID}");
             return;
         }
 
-        // Protocol.{className} 클래스의 static Parser 속성에서 MessageParser 인스턴스 가져오기
-        var parserProperty = type.GetProperty("Parser");
-        if (parserProperty == null)
-        {
-            Console.WriteLine($"Failed to find Parser for: {className}");
-            return;
-        }
-
-        // MessageParser를 이용해 패킷 역직렬화
-        if (parserProperty.GetValue(null) is not MessageParser parser)
-        {
-            Console.WriteLine($"Failed to get MessageParser for: {className}");
-            return;
-        }
-
-        // 헤더 4바이트(Size:2, ID:2)를 제외한 나머지가 데이터 길이
+        // 캐싱된 Parser 사용
         IMessage packet = parser.ParseFrom(buffer, 4, size - 4);
 
         // 패킷 ID에 해당하는 핸들러가 등록되어 있으면 실행
@@ -129,6 +135,4 @@ public class Session
             _socket.Close();
         }
     }
-
-
 }

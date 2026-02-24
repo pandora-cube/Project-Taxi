@@ -38,6 +38,7 @@ public class GameRoom : JobSerializer
         if (packet is not C_Move movePacket) return;
 
         // 이동 패킷이 오면 바로 로직을 수행하지 않고 큐에 넣습니다.
+        Console.WriteLine($"Received Move Packet from Player {session.PlayerID}: ({movePacket.PosX}, {movePacket.PosY}, {movePacket.PosZ})");
         Enqueue(() => UpdatePlayerPos(session, movePacket));
     }
 
