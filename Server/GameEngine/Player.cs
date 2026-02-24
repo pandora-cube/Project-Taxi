@@ -1,24 +1,16 @@
 // Game Server Info
+using System.Numerics;
 using ServerCore;
 
 namespace GameEngine;
 
-public class Player
+public class Player(int id, Session session)
 {
-    public int playerID;
+    public int playerID = id;
     public string? nickname;
-    public float posX, posY, posZ;
-    public float velX, velY, velZ;
-    public float rotY;
+    public Vector3 postion = Vector3.Zero;
+    public Vector3 velocity = Vector3.Zero;
+    public float rotY = 0;
 
-    public Session? session;
-
-    public Player(int id, Session session)
-    {
-        playerID = id;
-        this.session = session;
-        posX = posY = posZ = 0;
-        velX = velY = velZ = 0;
-        rotY = 0;
-    }
+    public Session? session = session;
 }

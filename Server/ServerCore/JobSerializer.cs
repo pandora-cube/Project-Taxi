@@ -1,4 +1,5 @@
 
+namespace ServerCore;
 
 public class JobSerializer
 {

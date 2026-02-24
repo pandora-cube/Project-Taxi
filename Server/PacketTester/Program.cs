@@ -1,8 +1,8 @@
-﻿
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using Protocol;
 using Google.Protobuf;
+using ServerCore;
 
 namespace PacketTester;
 
@@ -23,9 +23,24 @@ public class Program
             socket.Connect(endPoint);
             Console.WriteLine("Connected to Server!");
 
+            // Session 생성 및 설정
+            Session session = new Session(socket);
+
+            // S_BroadcastMove 패킷이 오면 콘솔에 출력하도록 핸들러 등록
+            session.BindAction(PacketID.PktSBroadcastMove, (s, packet) =>
+            {
+                if (packet is S_BroadcastMove moveResponse)
+                {
+                    Console.WriteLine($"\n[RECV] S_BroadcastMove - Player:{moveResponse.PlayerId} Pos:({moveResponse.PosX}, {moveResponse.PosY}, {moveResponse.PosZ})");
+                    Console.Write("Enter Position (X Y Z) or 'quit' to exit: "); // 입력 프롬프트 유지
+                }
+            });
+
+            // 비동기 수신 시작
+            session.Start();
+
             while (true)
             {
-                // 3개의 값 입력받기 (posX, posY, posZ) 혹은 'quit' 입력받기
                 Console.Write("Enter Position (X Y Z) or 'quit' to exit: ");
 
                 string? input = Console.ReadLine();
@@ -48,7 +63,7 @@ public class Program
                     continue;
                 }
 
-                // 3. 테스트할 패킷 생성 (C_Move)
+                // 3. 테스트할 패킷 생성 (C_Move) 및 전송
                 C_Move movePacket = new C_Move
                 {
                     PosX = posX,
@@ -56,10 +71,9 @@ public class Program
                     PosZ = posZ
                 };
 
-                SendPacket(socket, movePacket, PacketID.PktCMove);
-
-                Console.WriteLine($"Sent C_Move Packet (ID: {PacketID.PktCMove}, Size: {movePacket.CalculateSize() + 4})");
-                Console.WriteLine($"Position: ({movePacket.PosX}, {movePacket.PosY}, {movePacket.PosZ})");
+                // Session의 Send 기능을 사용하여 전송
+                session.Send(movePacket);
+                Console.WriteLine($"[SENT] C_Move Position: ({movePacket.PosX}, {movePacket.PosY}, {movePacket.PosZ})");
             }
 
             socket.Close();
@@ -69,24 +83,5 @@ public class Program
         {
             Console.WriteLine($"Error: {ex.Message}");
         }
-    }
-
-    static void SendPacket(Socket socket, IMessage packet, PacketID packetId)
-    {
-        // 4. 패킷 직렬화 및 헤더 조립 [Size(2)][ID(2)][Payload(N)]
-        // Size = PacketID(2) + Payload Length
-        byte[] payload = packet.ToByteArray();
-        ushort packetIdValue = (ushort)packetId;
-        ushort size = (ushort)(payload.Length + 2);
-
-        byte[] sendBuffer = new byte[size + 2];
-
-        // Little Endian으로 헤더 작성
-        Array.Copy(BitConverter.GetBytes(size), 0, sendBuffer, 0, 2);
-        Array.Copy(BitConverter.GetBytes(packetIdValue), 0, sendBuffer, 2, 2);
-        Array.Copy(payload, 0, sendBuffer, 4, payload.Length);
-
-        // 5. 전송
-        socket.Send(sendBuffer);
     }
 }

@@ -2,13 +2,14 @@
 using ServerCore;
 using Protocol;
 using Google.Protobuf;
+using System.Numerics;
 
 namespace GameEngine;
 
-public class GameRoom
+public class GameRoom : JobSerializer
 {
     static int nextPlayerID = 1;
-    Dictionary<int, Player> players = new Dictionary<int, Player>();
+    readonly Dictionary<int, Player> players = new Dictionary<int, Player>();
 
     /// <summary>
     /// 새 플레이어를 방에 추가하고, 해당 세션에 패킷 핸들러 등록
@@ -16,10 +17,17 @@ public class GameRoom
     /// <param name="session"></param>
     public void AddPlayer(Session session)
     {
-        Player newPlayer = new Player(nextPlayerID++, session);
-        session.BindAction(PacketID.PktCMove, OnMovePacketReceived);
+        // 1. 세션에 플레이어 ID 부여 (수신 쓰레드에서 바로 접근하므로 여기서 미리 설정)
+        int id = Interlocked.Increment(ref nextPlayerID);
+        session.PlayerID = id;
 
-        players.Add(newPlayer.playerID, newPlayer);
+        // 2. 룸의 상태(players 딕셔너리)를 건드리는 작업은 큐에 넣어서 처리
+        Enqueue(() => {
+            Player newPlayer = new Player(id, session);
+            session.BindAction(PacketID.PktCMove, OnMovePacketReceived);
+            players.Add(id, newPlayer);
+            Console.WriteLine($"Player {id} added to room.");
+        });
     }
 
     /// <summary>
@@ -27,13 +35,32 @@ public class GameRoom
     /// </summary>
     void OnMovePacketReceived(Session session, IMessage packet)
     {
-        // only handle C_Move packets
-        if (packet is not C_Move movePacket)
-        {
-            Console.WriteLine("Received non-move packet");
-            return;
-        }
+        if (packet is not C_Move movePacket) return;
 
-        Console.WriteLine($"Received move packet: {movePacket.PosX}, {movePacket.PosY}, {movePacket.PosZ}");
+        // 이동 패킷이 오면 바로 로직을 수행하지 않고 큐에 넣습니다.
+        Enqueue(() => UpdatePlayerPos(session, movePacket));
+    }
+
+    private void UpdatePlayerPos(Session session, C_Move movePacket)
+    {
+        // Enqueue 안에서 실행되므로 players에 안전하게 접근 가능
+        if (players.TryGetValue(session.PlayerID, out Player? player))
+        {
+            player.postion = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
+
+            // 모든 플레이어에게 전파 (브로드캐스트)
+            S_BroadcastMove moveResponse = new S_BroadcastMove
+            {
+                PlayerId = session.PlayerID,
+                PosX = movePacket.PosX,
+                PosY = movePacket.PosY,
+                PosZ = movePacket.PosZ
+            };
+
+            foreach (var p in players.Values)
+            {
+                p.session?.Send(moveResponse);
+            }
+        }
     }
 }

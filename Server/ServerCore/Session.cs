@@ -8,6 +8,7 @@ namespace ServerCore;
 public class Session
 {
     private Socket _socket;
+    public int PlayerID { get; set; }
 
     Dictionary<PacketID, Action<Session, IMessage>> packetHandlers = new Dictionary<PacketID, Action<Session, IMessage>>();
 
@@ -31,6 +32,9 @@ public class Session
         packetHandlers.Add(packetID, action);
     }
 
+    /// <summary>
+    /// 수신된 패킷을 PacketID에 따라 구분하고, 해당 패킷을 변환하여 등록된 핸들러 실행
+    /// </summary>
     void HandlePacket(byte[] buffer)
     {
         ushort size = BitConverter.ToUInt16(buffer, 0);
@@ -63,7 +67,8 @@ public class Session
             return;
         }
 
-        IMessage packet = parser.ParseFrom(buffer, 4, size - 2);
+        // 헤더 4바이트(Size:2, ID:2)를 제외한 나머지가 데이터 길이
+        IMessage packet = parser.ParseFrom(buffer, 4, size - 4);
 
         // 패킷 ID에 해당하는 핸들러가 등록되어 있으면 실행
         if (packetHandlers.TryGetValue(packetID, out Action<Session, IMessage>? action))
@@ -76,7 +81,20 @@ public class Session
         }
     }
 
+    public void Send(IMessage packet)
+    {
+        string msgName = packet.Descriptor.Name.Replace("_", "");
+        PacketID msgId = Enum.Parse<PacketID>($"Pkt{msgName}");
 
+        ushort size = (ushort)packet.CalculateSize();
+        byte[] sendBuffer = new byte[size + 4];
+
+        Array.Copy(BitConverter.GetBytes((ushort)(size + 4)), 0, sendBuffer, 0, sizeof(ushort));
+        Array.Copy(BitConverter.GetBytes((ushort)msgId), 0, sendBuffer, 2, sizeof(ushort));
+        Array.Copy(packet.ToByteArray(), 0, sendBuffer, 4, size);
+
+        _socket.Send(sendBuffer);
+    }
 
     private async void StartReceive()
     {
