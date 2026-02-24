@@ -1,10 +1,14 @@
 ﻿using System.Net;
+using ServerCore;
 using Protocol;
 
-namespace ServerCore;
+namespace GameEngine;
 
 class Program
 {
+
+    static GameRoom gameRoom = new GameRoom();
+
     static void Main(string[] args)
     {
         // 1. 엔드포인트 설정    
@@ -14,9 +18,14 @@ class Program
         Listener listener = new Listener();
 
         // 접속이 발생했을 때 실행할 콜백 등록
-        listener.Init(endPoint, (clientSocket) => {
-            // 접속할 때마다 새로운 세션 객체 생성
+        listener.Init(endPoint, (clientSocket) =>
+        {
+            // TODO: 첫 소켓 요청이 들어올 시 방 + 플레이어 세션 생성 및 연결
             Session session = new Session(clientSocket);
+
+            gameRoom.AddPlayer(session);
+
+            session.Start();
         });
 
         Console.WriteLine($"Echo Server is running...");
