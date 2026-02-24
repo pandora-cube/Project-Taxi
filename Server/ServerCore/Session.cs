@@ -96,7 +96,6 @@ public class Session
 
                 HandlePacket(buffer);
 
-
                 //=========
 
 
@@ -109,6 +108,34 @@ public class Session
         finally
         {
             _socket.Close();
+        }
+    }
+
+    public void Send(IMessage packet)
+    {
+        // 1. 패킷 ID 추출 (Enum 이름에서 Pkt_ 추출 또는 매핑)
+        // 현재 리플렉션 구조상 클래스 이름과 PacketID를 매칭하는 로직이 필요합니다.
+        string typeName = packet.Descriptor.Name.Replace("_", ""); // C_Move -> CMove
+        PacketID packetID = (PacketID)Enum.Parse(typeof(PacketID), $"Pkt{typeName}");
+
+        // 2. 데이터 직렬화
+        byte[] sendBuffer = packet.ToByteArray();
+        ushort size = (ushort)(sendBuffer.Length + 4); // 헤더(4) + 데이터
+
+        // 3. 최종 패킷 조립 [Size(2)][PacketID(2)][Data...]
+        byte[] fullBuffer = new byte[size];
+        Array.Copy(BitConverter.GetBytes(size), 0, fullBuffer, 0, 2);
+        Array.Copy(BitConverter.GetBytes((ushort)packetID), 0, fullBuffer, 2, 2);
+        Array.Copy(sendBuffer, 0, fullBuffer, 4, sendBuffer.Length);
+
+        // 4. 전송
+        try
+        {
+            _socket.Send(fullBuffer);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Send Error: {e.Message}");
         }
     }
 
