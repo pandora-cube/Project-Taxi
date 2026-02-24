@@ -1,87 +1,159 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerMove : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 5f;
+    [SerializeField] private float walkSpeed = 4.0f;
+    [SerializeField] private float sprintSpeed = 7.0f;
+    [SerializeField] private float jumpHeight = 1.2f;
+    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float jumpGravityMultiplier = 2.0f; // 점프 후 떨어질 때 더 빠르게
     
-    [Header("Mouse Sensitivity")]
-    public float mouseSensitivity = 200f;
-    public Transform cameraTransform; // 플레이어의 자식인 카메라
+    
+    [Header("Survival Settings")]
+    [SerializeField] private float sprintHungerThreshold = 20f; //달리기가 불가능해지는 허기 기준치
+    
+    [Header("Look Settings")]
+    [SerializeField] private Transform playerCamera; // 자식으로 있는 메인 카메라
+    [SerializeField] private float mouseSensitivity = 15.0f; // 마우스 감도
+    [SerializeField] private float lookXLimit = 85.0f; // 목 꺾임 방지 (위아래 제한)
 
-    public float jumpForce = 7f;     // 점프 힘
-    private Rigidbody rb;
-    private Vector3 moveDirection;
-    private float xRotation = 0f;
+    // 내부 변수
+    private CharacterController _controller;
+    private PlayerControls _inputActions;
+    private PlayerStats _playerStats;
+    
+    private Vector2 _moveInput;
+    private Vector2 _lookInput;
+    private Vector3 _velocity; // 중력/점프 처리를 위한 수직 속도
+    private float _xRotation = 0f; // 카메라 상하 회전값 누적
+    private bool _isSprinting;
+    private bool _canSprint = true;
 
-    [Header("Ground Check")]
-    public bool isGrounded;          // 바닥에 닿아있는지 확인
-    public float groundCheckDistance = 0.2f;
-    public LayerMask groundLayer;    // 바닥으로 인식할 레이어
-
-    void Start()
+    private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        _controller = GetComponent<CharacterController>();
+        _inputActions = new PlayerControls();
+        _playerStats = GetComponent<PlayerStats>();
         
-        // 핵심: 마우스 커서를 화면 중앙에 강제로 고정하고 숨깁니다.
-        // 이렇게 해야 마우스를 움직였을 때 커서가 밖으로 나가지 않고,
-        // 화면 중앙이 곧 마우스 포인터의 위치가 됩니다.
+        
+        // 입력 이벤트 연결 (람다식 활용)
+        _inputActions.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
+        _inputActions.Player.Move.canceled += ctx => _moveInput = Vector2.zero;
+
+        _inputActions.Player.Look.performed += ctx => _lookInput = ctx.ReadValue<Vector2>();
+        _inputActions.Player.Look.canceled += ctx => _lookInput = Vector2.zero;
+
+        _inputActions.Player.Sprint.performed += ctx => _isSprinting = true;
+        _inputActions.Player.Sprint.canceled += ctx => _isSprinting = false;
+
+        _inputActions.Player.Jump.performed += ctx => Jump();
+
+        // 마우스 커서 숨기기 및 고정
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false; // 커서 숨김
+        Cursor.visible = false;
     }
 
-    void Update()
+    private void OnEnable()
     {
+        _inputActions.Enable();
+        _playerStats.OnHungerChanged += CheckSprintAvailability;
+    }
 
+    private void OnDisable()
+    {
+        _inputActions.Disable();
+        _playerStats.OnHungerChanged -= CheckSprintAvailability;
+    }
+    
 
-        // 회전 입력 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+    private void Update()
+    {
+        HandleLook();
+        HandleMovement();
+        ApplyGravity();
+    }
+    
+    //허기가 바뀔 때마다 호출되어 달리기 가능 여부를 갱신하는 함수
+    private void CheckSprintAvailability(float currentHunger, float maxHunger)
+    {
+        // 현재 허기가 기준치 이상일 때만 달리기 가능
+        _canSprint = currentHunger >= sprintHungerThreshold;
 
-        // 좌우 회전 (몸통)
-        transform.Rotate(Vector3.up * mouseX);
-
-        // 상하 회전 (카메라)
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        
-        // WASD 입력 받기
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
-
-        // 이동 방향 계산 (캐릭터가 바라보는 방향 기준)
-        moveDirection = (transform.forward * v + transform.right * h).normalized;
-
-        // 바닥 체크 (레이캐스트)
-        CheckGround();
-
-        // 점프 입력 (바닥일 때만)
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        // 만약 뛰고 있었는데 허기가 떨어져서 못 뛰게 되면 즉시 걷기로 전환
+        if (!_canSprint && _isSprinting)
         {
-            Jump();
+            _isSprinting = false;
         }
     }
 
-    void CheckGround()
+    // 1. 시점 처리 (마우스)
+    private void HandleLook()
     {
-        // 캐릭터 중심에서 아래로 레이를 쏴서 바닥 레이어와 충돌하는지 확인
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, (GetComponent<CapsuleCollider>().height * 0.5f) + groundCheckDistance, groundLayer);
-        
-        // 에디터 뷰에서 바닥 체크 레이를 시각적으로 표시 (선택사항)
-        Debug.DrawRay(transform.position, Vector3.down * ((GetComponent<CapsuleCollider>().height * 0.5f) + groundCheckDistance), isGrounded ? Color.green : Color.red);
+        // 마우스 입력값 (설정된 감도와 Time.deltaTime 적용)
+        // 주의: Input System의 Delta는 이미 프레임 보정이 되어있기도 하지만, 부드러움을 위해 deltaTime 곱하기도 함. 
+        // Unity 6 Input System 기본 세팅이면 deltaTime을 곱하지 않는게 나을 수 있으니 테스트 필요.
+        // 여기서는 감도 조절용으로만 곱함.
+        float mouseX = _lookInput.x * mouseSensitivity * Time.deltaTime;
+        float mouseY = _lookInput.y * mouseSensitivity * Time.deltaTime;
+
+        // 상하 회전 (카메라만 돌림)
+        _xRotation -= mouseY;
+        _xRotation = Mathf.Clamp(_xRotation, -lookXLimit, lookXLimit);
+        playerCamera.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+
+        // 좌우 회전 (몸통 전체를 돌림)
+        transform.Rotate(Vector3.up * mouseX);
     }
 
-    void Jump()
+    // 2. 이동 처리 (키보드)
+    private void HandleMovement()
     {
-        // Y축 속도를 초기화하고 점프 힘 가하기 (일관된 점프 높이 유지)
-        rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        // 현재 속도 결정 (Shift 누르면 달리기)
+        float currentSpeed = _isSprinting ? sprintSpeed : walkSpeed;
+
+        // 로컬 기준 이동 방향을 월드 기준으로 변환
+        // transform.right = 플레이어의 오른쪽, transform.forward = 플레이어의 앞쪽
+        Vector3 move = transform.right * _moveInput.x + transform.forward * _moveInput.y;
+
+        // CharacterController로 이동 (중력 제외한 수평 이동)
+        // Move는 '매 프레임 이동할 거리'를 받으므로 deltaTime 필수
+        _controller.Move(move * currentSpeed * Time.deltaTime);
     }
 
-    void FixedUpdate()
+    // 3. 점프 및 중력 처리
+    private void ApplyGravity()
     {
-        // 5. 물리 이동
-        rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime);
+        // 땅에 닿아있으면 수직 속도 초기화 (계속 떨어지는 것 방지)
+        // isGrounded는 CharacterController가 제공하는 기능
+        if (_controller.isGrounded && _velocity.y < 0)
+        {
+            _velocity.y = -2f; // 0이 아니라 -2 정도로 눌러줘야 땅에 착 붙어있음 (계단/경사면 버그 방지)
+        }
+
+        // 중력 적용 (가속도 법칙: 속도 += 중력 * 시간)
+        _velocity.y += gravity * Time.deltaTime;
+
+        // 떨어질 때(점프 정점 이후) 더 빠르게 떨어지게 하여 타격감 주기
+        if (_velocity.y < 0 && !_controller.isGrounded)
+        {
+            _velocity.y += gravity * (jumpGravityMultiplier - 1) * Time.deltaTime;
+        }
+
+        // 최종 수직 이동 적용
+        _controller.Move(_velocity * Time.deltaTime);
+    }
+
+    private void Jump()
+    {
+        // 땅에 있을 때만 점프 가능
+        if (_controller.isGrounded)
+        {
+            // 점프 공식: v = sqrt(h * -2 * g)
+            _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
     }
 }
